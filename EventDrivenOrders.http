@@ -1,0 +1,13 @@
+@EventDrivenOrders_HostAddress = http://localhost:5173
+
+### Create Order
+POST https://localhost:7204/orders
+Content-Type: application/json
+{
+  "customerName": "Abdelrahman",
+  "amount": 1500
+}
+### Pay Order
+POST https://localhost:7204/orders/{97fb1e2d-d500-4bb0-992d-9a4ab3acbf6c}/pay
+
+
