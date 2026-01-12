@@ -1,6 +1,11 @@
 using EventDrivenOrders.Application.Contracts;
+using EventDrivenOrders.Application.Events;
+using EventDrivenOrders.Application.Notifications;
 using EventDrivenOrders.Application.Services;
-using EventDrivenOrders.Infarstructure;
+using EventDrivenOrders.Application.Storage;
+using EventDrivenOrders.Domain.Events;
+using EventDrivenOrders.Infrastructure.Handlers;
+using EventDrivenOrders.Infrastructure.Notification;
 
 namespace EventDrivenOrders
 {
@@ -13,17 +18,15 @@ namespace EventDrivenOrders
             // Add services to the container.
             builder.Services.AddAuthorization();
 
+            builder.Services.AddSingleton<InMemoryEventBus>();
+            builder.Services.AddSingleton<IOrderStore, InMemoryOrderStore>();
             builder.Services.AddSingleton<OrderService>();
-            builder.Services.AddSingleton<OrderLoggingSubscriber>();
+            builder.Services.AddSingleton<IEmailSender, ConsoleEmailSender>();
+            builder.Services.AddSingleton<IEventHandler<OrderCreatedEvent>, OrderCreatedEmailHandler>();
+            builder.Services.AddSingleton<IEventHandler<OrderCreatedEvent>, OrderCreatedLoggingHandler>();
+            builder.Services.AddSingleton<IEventHandler<OrderPaidEvent>, OrderPaidLoggingHandler>();
 
             var app = builder.Build();
-
-            var orderService = app.Services.GetRequiredService<OrderService>();
-            var logger = app.Services.GetRequiredService<OrderLoggingSubscriber>();
-
-            orderService.OrderCreated+=logger.OnOrderCreated;
-            orderService.OrderPaid += logger.OnOrderPaid;
-
 
             // Configure the HTTP request pipeline.
 
@@ -31,21 +34,21 @@ namespace EventDrivenOrders
 
             app.UseAuthorization();
 
-            app.MapPost("/orders", (OrderService service, CreateOrderRequest request) =>
+            app.MapPost("/orders", async (OrderService service, CreateOrderRequest request) =>
             {
-                var order = service.CreateOrder(request.CustomerName, request.Amount);
+                var order = await service.CreateOrderAsync(request.CustomerName, request.Amount);
                 return Results.Created($"/orders/{order.Id}", order);
             });
 
-            app.MapPost("/orders/{id:guid}/pay", (OrderService service, Guid id) =>
+            app.MapPost("/orders/{id:guid}/pay", async (OrderService service, Guid id) =>
             {
-                service.PayOrder(id);
+                await service.PayOrderAsync(id);
                 return Results.Ok();
             });
 
-            app.MapGet("/orders", (OrderService service) =>
+            app.MapGet("/orders", (IOrderStore store) =>
             {
-                return service.GetOrders();
+                return store.GetAll();
             });
 
             app.Run();

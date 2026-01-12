@@ -1,6 +1,6 @@
 ﻿namespace EventDrivenOrders.Domain.Events
 {
-    public class OrderCancelledEvents
+    public class OrderCancelledEvent : IDomainEvent
     {
     }
 }

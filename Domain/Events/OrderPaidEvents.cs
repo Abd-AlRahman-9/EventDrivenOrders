@@ -2,10 +2,10 @@
 
 namespace EventDrivenOrders.Domain.Events
 {
-    public class OrderPaidEvents
+    public class OrderPaidEvent : IDomainEvent
     {
         public Order Order { get; }
         public DateTime PaidAt { get; } = DateTime.Now;
-        public OrderPaidEvents(Order order) => Order = order;
+        public OrderPaidEvent(Order order) => Order = order;
     }
 }

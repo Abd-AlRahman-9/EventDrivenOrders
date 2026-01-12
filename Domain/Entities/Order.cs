@@ -5,11 +5,13 @@
         public Guid Id { get; init; } = Guid.NewGuid();
         public string CustomerName { get; init; }
         public decimal TotalAmount { get; private set; }
+        public string Email { get; set; }
         public string Status { get; private set; } = "Created";
 
         public Order(string customerName, decimal totalAmount)
         {
             CustomerName = customerName;
+            Email = $"{customerName}@gmail.com";
             TotalAmount = totalAmount;
         }
         public void Pay() => Status = "Paid";

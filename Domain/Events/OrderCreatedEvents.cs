@@ -2,10 +2,10 @@
 
 namespace EventDrivenOrders.Domain.Events
 {
-    public class OrderCreatedEvents
+    public class OrderCreatedEvent : IDomainEvent
     {
         public Order Order { get; }
         public DateTime CreatedAt { get; } = DateTime.Now;
-        public OrderCreatedEvents (Order order) => Order = order;
+        public OrderCreatedEvent (Order order) => Order = order;
     }
 }

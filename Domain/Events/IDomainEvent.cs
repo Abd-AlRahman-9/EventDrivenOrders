@@ -1,6 +1,6 @@
 ﻿namespace EventDrivenOrders.Domain.Events
 {
-    public class OrderShippedEvent : IDomainEvent
+    public interface IDomainEvent
     {
     }
 }
